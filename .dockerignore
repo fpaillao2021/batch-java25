@@ -1,0 +1,13 @@
+target
+.mvn
+bin
+.idea
+*.iml
+.git
+**/node_modules
+**/dist
+*.log
+*.tmp
+*.swp
+Dockerfile
+README.md

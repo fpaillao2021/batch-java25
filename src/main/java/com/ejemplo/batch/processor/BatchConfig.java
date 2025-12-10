@@ -40,6 +40,9 @@ public class BatchConfig {
     // --- Reader (Lector de Archivo CSV) ---
     @Bean
     public FlatFileItemReader<RegistroCSV> reader(@Value("${file.input}") String pathToFile) {
+        
+        System.out.println("Ruta del archivo CSV: " + pathToFile);
+
         return new FlatFileItemReaderBuilder<RegistroCSV>()
             .name("csvReader")
             .resource(new FileSystemResource(pathToFile))
