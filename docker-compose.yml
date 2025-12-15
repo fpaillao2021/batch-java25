@@ -1,4 +1,3 @@
-
 services:
   db:
     image: mysql:8.0
@@ -8,9 +7,7 @@ services:
       MYSQL_ROOT_PASSWORD: Evertec.2025
       MYSQL_DATABASE: spring_batch_db
     volumes:
-      # Persistir datos de MySQL
       - mysql_data:/var/lib/mysql
-      # Script de inicialización
       - ./scripts/crear-base-datos.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "3308:3306"
@@ -21,6 +18,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
   app:
     build:
       context: .
@@ -28,25 +26,31 @@ services:
     container_name: batch-app
     restart: unless-stopped
     environment:
-      # Conectar la aplicación al servicio 'db' de este compose
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3308/spring_batch_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      # Host corregido a 'db' (el nombre del servicio)
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/spring_batch_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: Evertec.2025
     ports:
       - "8080:8080"
+    volumes:
+      # AÑADIR ESTA LÍNEA para mapear la carpeta local ./data a /app/data en el contenedor
+      - ./data:/app/data
+    depends_on:
+      # Esperar a que el servicio 'db' esté completamente saludable
+      db:
+        condition: service_healthy
     networks:
       - spring-batch-network
 
 # ============================================
-# NETWORKS
+# NETWORKS (Asegúrate que esta línea esté al mismo nivel que 'services:')
 # ============================================
 networks:
   spring-batch-network:
     driver: bridge
 
 # ============================================
-# VOLUMES
+# VOLUMES (Asegúrate que esta línea esté al mismo nivel que 'services:')
 # ============================================
 volumes:
   mysql_data:
-    driver: local
