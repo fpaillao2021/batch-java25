@@ -29,11 +29,11 @@ services:
     restart: unless-stopped
     environment:
       # Conectar la aplicación al servicio 'db' de este compose
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3308/spring_batch_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3308/spring_batch_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: Evertec.2025
     ports:
-      - "8080:8080"
+      - "9090:9090"
     networks:
       - spring-batch-network
 
