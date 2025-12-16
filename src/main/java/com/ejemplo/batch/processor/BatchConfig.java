@@ -1,11 +1,9 @@
 package com.ejemplo.batch.processor;
 
 import com.ejemplo.batch.model.RegistroCSV;
-import com.ejemplo.batch.processor.RegistroProcessor;
 import jakarta.persistence.EntityManagerFactory;
 
 import org.springframework.batch.core.job.Job;
-import org.springframework.batch.core.job.builder.*;
 import org.springframework.batch.core.step.*;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -19,8 +17,11 @@ import org.springframework.batch.infrastructure.item.file.mapping.BeanWrapperFie
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.transaction.PlatformTransactionManager;
+import java.io.File;
 
 @Configuration
 @EnableBatchProcessing
@@ -38,10 +39,26 @@ public class BatchConfig {
     }
 
     // --- Reader (Lector de Archivo CSV) ---
+    // Usamos proxyMode TARGET_CLASS para que funcione con singletons
     @Bean
-    public FlatFileItemReader<RegistroCSV> reader(@Value("${file.input}") String pathToFile) {
+    @Scope(value = "step", proxyMode = ScopedProxyMode.TARGET_CLASS)
+    public FlatFileItemReader<RegistroCSV> reader(
+            @Value("#{jobParameters['file.input']}") String pathToFile) {
         
-        System.out.println("Ruta del archivo CSV: " + pathToFile);
+        // Validar que el archivo existe
+        File file = new File(pathToFile);
+        if (!file.exists()) {
+            throw new IllegalArgumentException(
+                "✗ El archivo CSV no existe en la ruta: " + pathToFile);
+        }
+        
+        if (!file.canRead()) {
+            throw new IllegalArgumentException(
+                "✗ No hay permisos de lectura para el archivo: " + pathToFile);
+        }
+        
+        System.out.println("✓ Archivo CSV encontrado: " + pathToFile);
+        System.out.println("✓ Tamaño del archivo: " + file.length() + " bytes");
 
         return new FlatFileItemReaderBuilder<RegistroCSV>()
             .name("csvReader")

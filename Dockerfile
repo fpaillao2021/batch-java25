@@ -1,7 +1,6 @@
 # Multi-stage Dockerfile for building and running the Spring Boot application
 # Build stage: use Maven with a matching JDK for Java 25
-## Build stage: use Temurin JDK 25 and install Maven (avoids relying on a
-## non-existing "maven:...-eclipse-temurin-25" image tag on Docker Hub).
+## Build stage: use Temurin JDK 25 and install Maven
 FROM eclipse-temurin:25-jdk AS build
 WORKDIR /workspace
 
@@ -15,7 +14,7 @@ RUN set -eux \
 COPY pom.xml ./
 COPY src ./src
 
-RUN mvn -B -DskipTests package
+RUN mvn -B -DskipTests clean package
 
 # Runtime stage: use a lightweight Temurin JRE for Java 25
 FROM eclipse-temurin:25-jre
