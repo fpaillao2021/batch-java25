@@ -9,6 +9,7 @@ import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -27,6 +28,9 @@ public class JobRegistryImpl implements IJobRegistry {
     @Autowired
     private RegistroRepository registroRepository;
 
+    @Value("${file.data.path}")
+    private String dataPath;
+
     /**
      * Ejecuta el proceso batch con el archivo especificado
      * @param filename Nombre del archivo CSV (ej: registros.csv)
@@ -40,12 +44,12 @@ public class JobRegistryImpl implements IJobRegistry {
                 return "✗ ERROR: El nombre del archivo no puede estar vacío";
             }
             
-            String filepath = "src/main/resources/data/" + filename;
+            String filepath = dataPath + "/" + filename;
             
             // Validar que el archivo existe ANTES de crear los parámetros
             File file = new File(filepath);
             if (!file.exists()) {
-                return "✗ ERROR: El archivo '" + filename + "' no existe en la carpeta 'src/main/resources/data/'";
+                return "✗ ERROR: El archivo '" + filename + "' no existe en la carpeta '" + dataPath + "/'";
             }
             
             if (!file.canRead()) {

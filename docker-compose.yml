@@ -1,5 +1,9 @@
+version: '3.8'
 
 services:
+  # ============================================
+  # MySQL Database Service
+  # ============================================
   db:
     image: mysql:8.0
     container_name: batch-mysql
@@ -21,6 +25,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  # ============================================
+  # Spring Boot Batch Application Service
+  # ============================================
   app:
     build:
       context: .
@@ -28,31 +36,36 @@ services:
     container_name: batch-app
     restart: unless-stopped
     environment:
-      # Conectar la aplicación al servicio 'db' de este compose
+      # Database configuration (using docker-compose service name 'db')
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/spring_batch_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: Evertec.2025
+      # Activate Docker profile to use application-docker.properties
+      SPRING_PROFILES_ACTIVE: docker
+      # Batch configuration
+      SPRING_BATCH_JOB_ENABLED: "false"
+      SPRING_BATCH_JDBC_INITIALIZE_SCHEMA: always
     ports:
       - "8080:8080"
     volumes:
-      # AÑADIR ESTA LÍNEA para mapear la carpeta local ./data a /app/data en el contenedor
+      # Map local data folder for CSV file processing
       - ./data:/app/data
     depends_on:
-        # Esperar a que el servicio 'db' esté completamente saludable
+      # Wait for database to be healthy before starting app
       db:
         condition: service_healthy
     networks:
       - spring-batch-network
 
 # ============================================
-# NETWORKS
+# Docker Networks
 # ============================================
 networks:
   spring-batch-network:
     driver: bridge
 
 # ============================================
-# VOLUMES
+# Docker Volumes
 # ============================================
 volumes:
   mysql_data:
