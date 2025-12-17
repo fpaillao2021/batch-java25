@@ -54,7 +54,18 @@
         <artifactId>lombok</artifactId>
         <scope>provided</scope>
     </dependency>
-    
+
+    <!-- Dependencias de Log4j2 -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-log4j2</artifactId>
+    </dependency>
+    <!-- Opcional para YAML -->
+    <dependency>
+        <groupId>com.fasterxml.jackson.dataformat</groupId>
+        <artifactId>jackson-dataformat-yaml</artifactId>
+    </dependency>
+	
 	<!-- OpenAPI / Swagger UI -->
 	<dependency>
 		<groupId>org.springdoc</groupId>

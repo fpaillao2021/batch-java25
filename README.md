@@ -27,8 +27,8 @@
   ```
 
 **Endpoints útiles**
-- Swagger UI: `http://localhost:9090/swagger-ui/index.html`
-- OpenAPI JSON: `http://localhost:9090/v3/api-docs`
+- Swagger UI: `http://localhost:8080/swagger-ui/index.html`
+- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
 
 **Configuración importante**
 - Archivo principal: `src/main/resources/application.properties`.

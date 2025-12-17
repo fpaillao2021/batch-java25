@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <!-- Appender de Consola en formato JSON para que el Agent lo recolecte -->
+        <Console name="ConsoleJSONAppender" target="SYSTEM_OUT">
+            <!-- 
+              Usar JsonTemplateLayout o JsonLayout para formatear como JSON. 
+              Datadog proporciona plantillas para una fácil integración.
+            -->
+            <JsonTemplateLayout eventTemplateUri="classpath:DatadogJsonLayout.json" />
+            <!-- Para un formato JSON simple sin plantilla, puede usar: -->
+            <!-- <JsonLayout complete="false" compact="true" eventEol="true" /> -->
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="ConsoleJSONAppender"/>
+        </Root>
+    </Loggers>
+</Configuration>
