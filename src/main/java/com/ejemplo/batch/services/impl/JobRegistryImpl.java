@@ -39,23 +39,16 @@ public class JobRegistryImpl implements IJobRegistry {
     @Override
     public String runBatchJob(String filename) {
         try {
-            // Validar que el filename no esté vacío
-            if (filename == null || filename.trim().isEmpty()) {
-                return "✗ ERROR: El nombre del archivo no puede estar vacío";
+
+            // validar nombre y ruta del archivo
+            String validationError = validateFile(filename);
+            if (validationError != null) {
+                return validationError;
             }
-            
+
+            // crear la ruta completa del archivo
             String filepath = dataPath + "/" + filename;
-            
-            // Validar que el archivo existe ANTES de crear los parámetros
-            File file = new File(filepath);
-            if (!file.exists()) {
-                return "✗ ERROR: El archivo '" + filename + "' no existe en la carpeta '" + dataPath + "/'";
-            }
-            
-            if (!file.canRead()) {
-                return "✗ ERROR: No hay permisos de lectura para el archivo '" + filename + "'";
-            }
-            
+
             // Crear parámetros del job
             JobParameters jobParameters = new JobParametersBuilder()
                 .addString("JobID", String.valueOf(System.currentTimeMillis()))
@@ -102,4 +95,31 @@ public class JobRegistryImpl implements IJobRegistry {
         System.out.println("Registrando el job: " + jobName);
         return true;
     }
+
+    /**
+     * Valida la existencia y permisos del archivo
+    */
+    private String validateFile(String fileName) {
+      try {
+            // Validar que el filename no esté vacío
+            if (fileName == null || fileName.trim().isEmpty()) {
+                return "✗ ERROR: El nombre del archivo no puede estar vacío";
+            }
+            
+            String filepath = dataPath + "/" + fileName;
+            
+            // Validar que el archivo existe ANTES de crear los parámetros
+            File file = new File(filepath);
+            if (!file.exists()) {
+                return "✗ ERROR: El archivo '" + fileName + "' no existe en la carpeta '" + dataPath + "/'";
+            }
+            
+            if (!file.canRead()) {
+                return "✗ ERROR: No hay permisos de lectura para el archivo '" + fileName + "'";
+            }
+            return null;
+      } catch (Exception e) {
+            return "✗ ERROR inesperado al validar el archivo: " + e.getMessage();
+      }
+    } 
 }
