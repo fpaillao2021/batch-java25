@@ -1,6 +1,7 @@
 package com.ejemplo.batch.processor;
 
 import com.ejemplo.batch.model.RegistroCSV;
+import com.ejemplo.batch.utils.MessagesLocales;
 import jakarta.persistence.EntityManagerFactory;
 
 import org.springframework.batch.core.job.Job;
@@ -49,19 +50,19 @@ public class BatchConfig {
         File file = new File(pathToFile);
         if (!file.exists()) {
             throw new IllegalArgumentException(
-                "✗ El archivo CSV no existe en la ruta: " + pathToFile);
+                MessagesLocales.ErrorMensajeLocal.ERROR_ARCHIVO_CSV_NO_EXISTE + pathToFile);
         }
         
         if (!file.canRead()) {
             throw new IllegalArgumentException(
-                "✗ No hay permisos de lectura para el archivo: " + pathToFile);
+                MessagesLocales.ErrorMensajeLocal.ERROR_PERMISOS_LECTURA_CSV + pathToFile);
         }
         
-        System.out.println("✓ Archivo CSV encontrado: " + pathToFile);
-        System.out.println("✓ Tamaño del archivo: " + file.length() + " bytes");
+        System.out.println(MessagesLocales.MensajeLocal.ARCHIVO_CSV_ENCONTRADO + pathToFile);
+        System.out.println(MessagesLocales.MensajeLocal.TAMAÑO_ARCHIVO + file.length() + MessagesLocales.MensajeLocal.BYTES);
 
         return new FlatFileItemReaderBuilder<RegistroCSV>()
-            .name("csvReader")
+            .name(MessagesLocales.MensajeLocal.CSV_READER)
             .resource(new FileSystemResource(pathToFile))
             .delimited()
             // Configura el delimitador (separador de líneas)
@@ -93,7 +94,7 @@ public class BatchConfig {
     // --- Step (Unidad de Proceso) ---
     @Bean
     public Step importStep(FlatFileItemReader<RegistroCSV> reader, RegistroProcessor processor, JpaItemWriter<RegistroCSV> writer) {
-        return new StepBuilder("csvImportStep", jobRepository)
+        return new StepBuilder(MessagesLocales.MensajeLocal.CSV_IMPORT_STEP, jobRepository)
             .<RegistroCSV, RegistroCSV>chunk(10) // Procesa en bloques de 10
             .reader(reader)
             .processor(processor)
@@ -104,7 +105,7 @@ public class BatchConfig {
     // --- Job (El Trabajo Completo) ---
     @Bean
     public Job importUserJob(Step importStep) {
-        return new JobBuilder("importCsvJob", jobRepository)
+        return new JobBuilder(MessagesLocales.MensajeLocal.IMPORT_CSV_JOB, jobRepository)
             .incrementer(new RunIdIncrementer()) // Permite múltiples ejecuciones
             .flow(importStep)
             .end()

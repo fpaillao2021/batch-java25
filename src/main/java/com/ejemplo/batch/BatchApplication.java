@@ -1,5 +1,6 @@
 package com.ejemplo.batch;
 
+import com.ejemplo.batch.utils.MessagesLocales;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

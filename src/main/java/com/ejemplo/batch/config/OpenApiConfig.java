@@ -1,5 +1,6 @@
 package com.ejemplo.batch.config;
 
+import com.ejemplo.batch.utils.MessagesLocales;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import org.springframework.context.annotation.Bean;
@@ -12,8 +13,8 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Batch API")
-                        .version("v0.0.1")
-                        .description("Documentación OpenAPI para el proyecto batch"));
+                        .title(MessagesLocales.MensajeLocal.API_TITULO)
+                        .version(MessagesLocales.MensajeLocal.API_VERSION)
+                        .description(MessagesLocales.MensajeLocal.API_DESCRIPCION));
     }
 }

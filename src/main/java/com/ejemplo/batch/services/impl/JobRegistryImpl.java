@@ -3,6 +3,7 @@ package com.ejemplo.batch.services.impl;
 import com.ejemplo.batch.model.RegistroCSV;
 import com.ejemplo.batch.repository.RegistroRepository;
 import com.ejemplo.batch.services.IJobRegistry;
+import com.ejemplo.batch.utils.MessagesLocales;
 
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.parameters.JobParameters;
@@ -58,15 +59,15 @@ public class JobRegistryImpl implements IJobRegistry {
             // Ejecutar el job
             jobLauncher.run(importUserJob, jobParameters);
             
-            return "✓ El Job de Batch ha sido ejecutado exitosamente con el archivo: " + filename;
+            return MessagesLocales.MensajeLocal.BATCH_EJECUTADO_EXITOSAMENTE + filename;
             
         } catch (IllegalArgumentException e) {
             // Error de validación del archivo
-            return "✗ ERROR: " + e.getMessage();
+            return MessagesLocales.ErrorMensajeLocal.ERROR_VALIDACION_ARCHIVO + e.getMessage();
         } catch (Exception e) {
             // Otros errores durante la ejecución
             e.printStackTrace();
-            return "✗ ERROR al ejecutar el Job: " + e.getMessage();
+            return MessagesLocales.ErrorMensajeLocal.ERROR_EJECUTAR_JOB + e.getMessage();
         }
     }
 
@@ -92,7 +93,7 @@ public class JobRegistryImpl implements IJobRegistry {
     @Override
     public boolean registerJob(String jobName) {
         // Lógica para registrar el job
-        System.out.println("Registrando el job: " + jobName);
+        System.out.println(MessagesLocales.MensajeLocal.JOB_REGISTRADO + jobName);
         return true;
     }
 
@@ -103,7 +104,7 @@ public class JobRegistryImpl implements IJobRegistry {
       try {
             // Validar que el filename no esté vacío
             if (fileName == null || fileName.trim().isEmpty()) {
-                return "✗ ERROR: El nombre del archivo no puede estar vacío";
+                return MessagesLocales.ErrorMensajeLocal.ERROR_FILENAME_VACIO;
             }
             
             String filepath = dataPath + "/" + fileName;
@@ -111,15 +112,18 @@ public class JobRegistryImpl implements IJobRegistry {
             // Validar que el archivo existe ANTES de crear los parámetros
             File file = new File(filepath);
             if (!file.exists()) {
-                return "✗ ERROR: El archivo '" + fileName + "' no existe en la carpeta '" + dataPath + "/'";
+                return MessagesLocales.ErrorMensajeLocal.ERROR_ARCHIVO_NO_EXISTE + fileName + 
+                       MessagesLocales.ErrorMensajeLocal.ERROR_ARCHIVO_NO_EXISTE_RUTA + dataPath + 
+                       MessagesLocales.ErrorMensajeLocal.ERROR_ARCHIVO_NO_EXISTE_SUFIJO;
             }
             
             if (!file.canRead()) {
-                return "✗ ERROR: No hay permisos de lectura para el archivo '" + fileName + "'";
+                return MessagesLocales.ErrorMensajeLocal.ERROR_PERMISOS_LECTURA + fileName + 
+                       MessagesLocales.ErrorMensajeLocal.ERROR_PERMISOS_LECTURA_SUFIJO;
             }
             return null;
       } catch (Exception e) {
-            return "✗ ERROR inesperado al validar el archivo: " + e.getMessage();
+            return MessagesLocales.ErrorMensajeLocal.ERROR_INESPERADO_VALIDAR + e.getMessage();
       }
     } 
 }
