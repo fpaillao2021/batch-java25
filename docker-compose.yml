@@ -9,8 +9,8 @@ services:
     container_name: batch-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: Evertec.2025
-      MYSQL_DATABASE: spring_batch_db
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
     volumes:
       # Persistir datos de MySQL
       - mysql_data:/var/lib/mysql
@@ -37,9 +37,10 @@ services:
     restart: unless-stopped
     environment:
       # Database configuration (using docker-compose service name 'db')
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/spring_batch_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: Evertec.2025
+      # Variables loaded from .env file for security
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/${MYSQL_DATABASE}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_ROOT_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       # Activate Docker profile to use application-docker.properties
       SPRING_PROFILES_ACTIVE: docker
       # Batch configuration

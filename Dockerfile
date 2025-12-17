@@ -33,9 +33,9 @@ COPY data/ /app/data/
 # Expose port
 EXPOSE 8080
 
-# Set environment to use Docker network database
-ENV SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/spring_batch_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-ENV SPRING_DATASOURCE_USERNAME=root
-ENV SPRING_DATASOURCE_PASSWORD=Evertec.2025
+# Note: Database credentials are passed via environment variables from docker-compose.yml or .env file
+# Do NOT hardcode sensitive credentials in this Dockerfile
+# Spring will read: SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD
+# from the environment variables set by docker-compose or docker run --env-file
 
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
