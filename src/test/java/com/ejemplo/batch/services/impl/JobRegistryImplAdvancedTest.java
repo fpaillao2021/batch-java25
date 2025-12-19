@@ -199,7 +199,7 @@ class JobRegistryImplAdvancedTest {
         doReturn(jobExecution).when(jobLauncher).run(any(Job.class), any(JobParameters.class));
 
         // Act
-        String result = jobRegistry.runBatchJob(fileName);
+        String result = jobRegistry.runBatchJob(fileName, "DB_A");
 
         // Assert
         assertNotNull(result, "El resultado no debe ser nulo");
@@ -216,7 +216,7 @@ class JobRegistryImplAdvancedTest {
     @DisplayName("runBatchJob debe retornar error cuando archivo no existe")
     void testRunBatchJobConArchivoNoExistente() throws Exception {
         // Act
-        String result = jobRegistry.runBatchJob("archivo_inexistente.csv");
+        String result = jobRegistry.runBatchJob("archivo_inexistente.csv", "DB_A");
 
         // Assert
         assertNotNull(result, "El resultado no debe ser nulo");
@@ -229,7 +229,7 @@ class JobRegistryImplAdvancedTest {
     @DisplayName("runBatchJob debe retornar error cuando filename es null")
     void testRunBatchJobConFilenameNull() throws Exception {
         // Act
-        String result = jobRegistry.runBatchJob(null);
+        String result = jobRegistry.runBatchJob(null, "DB_A");
 
         // Assert
         assertNotNull(result, "El resultado no debe ser nulo");
@@ -242,7 +242,7 @@ class JobRegistryImplAdvancedTest {
     @DisplayName("runBatchJob debe retornar error cuando filename está vacío")
     void testRunBatchJobConFilenameVacio() throws Exception {
         // Act
-        String result = jobRegistry.runBatchJob("");
+        String result = jobRegistry.runBatchJob("", "DB_A");
 
         // Assert
         assertNotNull(result, "El resultado no debe ser nulo");
@@ -263,7 +263,7 @@ class JobRegistryImplAdvancedTest {
         doReturn(jobExecution).when(jobLauncher).run(any(Job.class), any(JobParameters.class));
 
         // Act
-        String result = jobRegistry.runBatchJob(fileName);
+        String result = jobRegistry.runBatchJob(fileName, "DB_A");
 
         // Assert
         assertTrue(result.contains("✓"), "Debe ejecutarse exitosamente");
@@ -289,7 +289,7 @@ class JobRegistryImplAdvancedTest {
             .when(jobLauncher).run(any(Job.class), any(JobParameters.class));
 
         // Act
-        String result = jobRegistry.runBatchJob(fileName);
+        String result = jobRegistry.runBatchJob(fileName, "DB_A");
 
         // Assert
         assertNotNull(result, "El resultado no debe ser nulo");
@@ -312,8 +312,8 @@ class JobRegistryImplAdvancedTest {
         doReturn(jobExecution).when(jobLauncher).run(any(Job.class), any(JobParameters.class));
 
         // Act - Ejecutar dos veces
-        String result1 = jobRegistry.runBatchJob(fileName);
-        String result2 = jobRegistry.runBatchJob(fileName);
+        String result1 = jobRegistry.runBatchJob(fileName, "DB_A");
+        String result2 = jobRegistry.runBatchJob(fileName, "DB_A");
 
         // Assert
         assertTrue(result1.contains("✓"), "Primer ejecución debe ser exitosa");

@@ -10,7 +10,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.Step;
-import org.springframework.batch.infrastructure.item.database.JpaItemWriter;
 import org.springframework.batch.infrastructure.item.file.FlatFileItemReader;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -18,6 +17,8 @@ import jakarta.persistence.EntityManagerFactory;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import com.ejemplo.batch.processor.CustomJpaItemWriter;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -222,20 +223,19 @@ class BatchConfigTest {
     // ============================================
     // TESTS PARA EL MÉTODO WRITER
     // ============================================
-
     @Test
-    @DisplayName("Método writer debe crear bean JpaItemWriter")
+    @DisplayName("Writer debe retornar CustomJpaItemWriter")
     void testWriterBean() {
-        JpaItemWriter<RegistroCSV> writer = batchConfig.writer();
+        CustomJpaItemWriter writer = batchConfig.writer();
 
         assertNotNull(writer, "El writer no debe ser nulo");
-        assertInstanceOf(JpaItemWriter.class, writer, "Debe retornar instancia de JpaItemWriter");
+        assertInstanceOf(CustomJpaItemWriter.class, writer, "Debe retornar instancia de CustomJpaItemWriter");
     }
 
     @Test
     @DisplayName("Writer debe tener EntityManagerFactory configurado")
     void testWriterConEntityManagerFactory() {
-        JpaItemWriter<RegistroCSV> writer = batchConfig.writer();
+        CustomJpaItemWriter writer = batchConfig.writer();
 
         assertNotNull(writer, "Writer debe estar configurado");
     }
@@ -250,7 +250,7 @@ class BatchConfigTest {
         // Crear mocks
         FlatFileItemReader<RegistroCSV> mockReader = mock(FlatFileItemReader.class);
         RegistroProcessor mockProcessor = mock(RegistroProcessor.class);
-        JpaItemWriter<RegistroCSV> mockWriter = mock(JpaItemWriter.class);
+        CustomJpaItemWriter mockWriter = mock(CustomJpaItemWriter.class);
 
         Step step = batchConfig.importStep(mockReader, mockProcessor, mockWriter);
 
@@ -263,7 +263,7 @@ class BatchConfigTest {
     void testImportStepChunkSize() throws Exception {
         FlatFileItemReader<RegistroCSV> mockReader = mock(FlatFileItemReader.class);
         RegistroProcessor mockProcessor = mock(RegistroProcessor.class);
-        JpaItemWriter<RegistroCSV> mockWriter = mock(JpaItemWriter.class);
+        CustomJpaItemWriter mockWriter = mock(CustomJpaItemWriter.class);
 
         Step step = batchConfig.importStep(mockReader, mockProcessor, mockWriter);
 

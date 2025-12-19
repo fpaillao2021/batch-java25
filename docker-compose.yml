@@ -2,9 +2,9 @@ version: '3.8'
 
 services:
   # ============================================
-  # MySQL Database Service
+  # MySQL Database Service (DB_A)
   # ============================================
-  db:
+  mysql:
     image: mysql:8.0
     container_name: batch-mysql
     restart: unless-stopped
@@ -15,13 +15,40 @@ services:
       # Persistir datos de MySQL
       - mysql_data:/var/lib/mysql
       # Script de inicialización
-      - ./scripts/crear-base-datos.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./scripts/init-mysql.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "3308:3306"
     networks:
       - spring-batch-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # PostgreSQL Database Service (DB_B)
+  # ============================================
+  postgres:
+    image: postgres:16
+    container_name: batch-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
+    volumes:
+      # Persistir datos de PostgreSQL
+      - postgres_data:/var/lib/postgresql/data
+      # Script de inicialización
+      - ./scripts/init-postgres.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - spring-batch-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -36,11 +63,18 @@ services:
     container_name: batch-app
     restart: unless-stopped
     environment:
-      # Database configuration (using docker-compose service name 'db')
-      # Variables loaded from .env file for security
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/${MYSQL_DATABASE}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_ROOT_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      # DataSource A - MySQL Configuration
+      SPRING_DATASOURCE_A_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_A_USERNAME: ${MYSQL_ROOT_USERNAME}
+      SPRING_DATASOURCE_A_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      SPRING_DATASOURCE_A_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+
+      # DataSource B - PostgreSQL Configuration
+      SPRING_DATASOURCE_B_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_B_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_B_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_DATASOURCE_B_DRIVER_CLASS_NAME: org.postgresql.Driver
+
       # Activate Docker profile to use application-docker.properties
       SPRING_PROFILES_ACTIVE: docker
       # Batch configuration
@@ -52,8 +86,10 @@ services:
       # Map local data folder for CSV file processing
       - ./data:/app/data
     depends_on:
-      # Wait for database to be healthy before starting app
-      db:
+      # Wait for both databases to be healthy before starting app
+      mysql:
+        condition: service_healthy
+      postgres:
         condition: service_healthy
     networks:
       - spring-batch-network
@@ -70,4 +106,6 @@ networks:
 # ============================================
 volumes:
   mysql_data:
+    driver: local
+  postgres_data:
     driver: local

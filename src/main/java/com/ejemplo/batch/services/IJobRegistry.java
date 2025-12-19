@@ -8,8 +8,10 @@ public interface IJobRegistry {
     
     /**
      * Ejecuta el proceso batch con el archivo especificado
+     * @param filename Nombre del archivo CSV (ej: registros.csv)
+     * @param database Base de datos destino: DB_A (MySQL) o DB_B (PostgreSQL)
      */
-    String runBatchJob(String filename);
+    String runBatchJob(String filename, String database);
     
     /**
      * Obtiene todos los registros procesados

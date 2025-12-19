@@ -42,7 +42,7 @@ class JobRegistryImplTest {
     @DisplayName("Debe rechazar filename vacío")
     void testRunBatchJobConFilenameVacio() {
         // Act
-        String resultado = jobRegistry.runBatchJob("");
+        String resultado = jobRegistry.runBatchJob("", "DB_A");
 
         // Assert
         assertTrue(resultado.contains("✗ ERROR"), "Debe retornar error para filename vacío");
@@ -53,7 +53,7 @@ class JobRegistryImplTest {
     @DisplayName("Debe rechazar filename null")
     void testRunBatchJobConFilenameNull() {
         // Act
-        String resultado = jobRegistry.runBatchJob(null);
+        String resultado = jobRegistry.runBatchJob(null, "DB_A");
 
         // Assert
         assertTrue(resultado.contains("✗ ERROR"), "Debe retornar error para filename null");
@@ -63,7 +63,7 @@ class JobRegistryImplTest {
     @DisplayName("Debe rechazar archivo que no existe")
     void testRunBatchJobArchivoNoExiste() {
         // Act
-        String resultado = jobRegistry.runBatchJob("archivo_inexistente.csv");
+        String resultado = jobRegistry.runBatchJob("archivo_inexistente.csv", "DB_A");
 
         // Assert
         assertTrue(resultado.contains("✗ ERROR"), "Debe retornar error para archivo inexistente");

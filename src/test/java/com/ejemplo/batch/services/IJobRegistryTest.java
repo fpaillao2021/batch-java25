@@ -17,7 +17,7 @@ class IJobRegistryTest {
     void testRunBatchJobSignature() {
         // Verificar que el método existe y retorna String
         try {
-            IJobRegistry.class.getMethod("runBatchJob", String.class);
+            IJobRegistry.class.getMethod("runBatchJob", String.class, String.class);
             assertTrue(true, "Método runBatchJob debe estar definido");
         } catch (NoSuchMethodException e) {
             fail("Método runBatchJob no encontrado");

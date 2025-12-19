@@ -82,18 +82,17 @@ public class BatchConfig {
     }
 
     // --- Writer (Escritor a Base de Datos) ---
+    // Ahora usa CustomJpaItemWriter que respeta el DataSourceContext
     @Bean
-    public JpaItemWriter<RegistroCSV> writer() {
-        JpaItemWriter<RegistroCSV> writer = new JpaItemWriter<>(entityManagerFactory);
-        writer.setEntityManagerFactory(entityManagerFactory);
-        return writer;
+    public CustomJpaItemWriter writer() {
+        return new CustomJpaItemWriter(entityManagerFactory);
     }
 
 
 
     // --- Step (Unidad de Proceso) ---
     @Bean
-    public Step importStep(FlatFileItemReader<RegistroCSV> reader, RegistroProcessor processor, JpaItemWriter<RegistroCSV> writer) {
+    public Step importStep(FlatFileItemReader<RegistroCSV> reader, RegistroProcessor processor, CustomJpaItemWriter writer) {
         return new StepBuilder(MessagesLocales.MensajeLocal.CSV_IMPORT_STEP, jobRepository)
             .<RegistroCSV, RegistroCSV>chunk(10) // Procesa en bloques de 10
             .reader(reader)
