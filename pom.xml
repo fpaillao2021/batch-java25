@@ -28,8 +28,19 @@
 	</scm>
 	<properties>
 		<java.version>25</java.version>
+		<maven.compiler.source>25</maven.compiler.source>
+		<maven.compiler.target>25</maven.compiler.target>
+		<maven.compiler.release>25</maven.compiler.release>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 	<dependencies>
+
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-actuator</artifactId>
+	</dependency>
+
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-web</artifactId>
@@ -38,6 +49,18 @@
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-batch</artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>org.springframework.batch</groupId>
+        <artifactId>spring-batch-core</artifactId>
+        <version>6.0.0</version>
+    </dependency>
+
+    <dependency>
+        <groupId>org.springframework.batch</groupId>
+        <artifactId>spring-batch-infrastructure</artifactId>
+        <version>6.0.0</version>
     </dependency>
 
     <dependency>
@@ -72,6 +95,64 @@
 		<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 		<version>2.1.0</version>
 	</dependency>
+
+	<!-- Testing Dependencies -->
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-test</artifactId>
+		<scope>test</scope>
+		<exclusions>
+			<exclusion>
+				<groupId>org.junit.vintage</groupId>
+				<artifactId>junit-vintage-engine</artifactId>
+			</exclusion>
+		</exclusions>
+	</dependency>
+
+	<!-- JUnit 5 (Jupiter) - Latest -->
+	<dependency>
+		<groupId>org.junit.jupiter</groupId>
+		<artifactId>junit-jupiter</artifactId>
+		<version>5.10.2</version>
+		<scope>test</scope>
+	</dependency>
+
+	<!-- Mockito - Latest Stable -->
+	<dependency>
+		<groupId>org.mockito</groupId>
+		<artifactId>mockito-core</artifactId>
+		<version>5.7.0</version>
+		<scope>test</scope>
+	</dependency>
+
+	<dependency>
+		<groupId>org.mockito</groupId>
+		<artifactId>mockito-junit-jupiter</artifactId>
+		<version>5.7.0</version>
+		<scope>test</scope>
+	</dependency>
+
+	<!-- Spring Batch Test -->
+	<dependency>
+		<groupId>org.springframework.batch</groupId>
+		<artifactId>spring-batch-test</artifactId>
+		<version>6.0.0</version>
+		<scope>test</scope>
+	</dependency>
+
+	<!-- H2 Database for Testing -->
+	<dependency>
+		<groupId>com.h2database</groupId>
+		<artifactId>h2</artifactId>
+		<version>2.2.224</version>
+		<scope>test</scope>
+	</dependency>
+	<dependency>
+		<groupId>com.datadoghq</groupId>
+		<artifactId>datadog-api-client</artifactId>
+		<version>2.44.0</version>
+		<scope>compile</scope>
+	</dependency>
 </dependencies>
 	<build>
 		<plugins>
@@ -82,14 +163,39 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<annotationProcessorPaths>
-						<path>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</path>
-					</annotationProcessorPaths>
+			<version>3.13.0</version>
+			<configuration>
+				<release>25</release>
+				<source>25</source>
+				<target>25</target>
+				<useIncrementalCompilation>false</useIncrementalCompilation>
+				<annotationProcessorPaths>
+					<path>
+						<groupId>org.projectlombok</groupId>
+						<artifactId>lombok</artifactId>
+					</path>
+				</annotationProcessorPaths>
 				</configuration>
+			</plugin>
+			<!-- JaCoCo for Code Coverage - Version 0.8.13 with Java 25 support -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.13</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

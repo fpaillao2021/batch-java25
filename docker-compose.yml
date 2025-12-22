@@ -1,4 +1,44 @@
+version: '3.8'
+
 services:
+  # El Agente de Datadog
+  datadog-agent:
+    image: gcr.io/datadoghq/agent:7
+    container_name: dd-agent
+    pid: host
+    # Se eliminó cgroupns_mode para evitar el error de validación
+    restart: always
+    environment:
+      - DD_API_KEY=a4c4fbd9097952985bd47c23eaac74d3
+      - DD_SITE=us5.datadoghq.com
+      - DD_HOSTNAME=datadog-agent-batch
+      - DD_PROCESS_AGENT_ENABLED=true
+      - DD_PROCESS_AGENT_URL=https://process.us5.datadoghq.com
+      - DD_APM_ENABLED=true
+      - DD_APM_NON_LOCAL_TRAFFIC=true
+      - DD_APM_RECEIVER_SOCKET=/var/run/datadog/apm.socket
+      - DD_DOGSTATSD_SOCKET=/var/run/datadog/dsd.socket
+      - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
+      - DD_LOGS_ENABLED=true
+      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
+      - DD_LOGS_CONFIG_AUTO_MULTI_LINE_DETECTION=true
+      - DD_CONTAINER_EXCLUDE_LOGS=name:dd-agent
+      - DD_DOCKER_LABELS_AS_TAGS={"com.docker.compose.service":"service"}
+      - DD_JMXFETCH_ENABLED=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup/:ro
+      - /var/run/datadog:/var/run/datadog:rw
+    ports:
+      - "8126:8126"
+      - "8125:8125/udp"
+    networks:
+      - spring-batch-network
+      
+  # ============================================
+  # MySQL Database Service
+  # ============================================
   db:
     image: mysql:8.0
     container_name: batch-mysql
@@ -19,6 +59,9 @@ services:
       timeout: 5s
       retries: 5
 
+  # ============================================
+  # Spring Boot Batch Application Service
+  # ============================================
   app:
     build:
       context: .
@@ -26,31 +69,44 @@ services:
     container_name: batch-app
     restart: unless-stopped
     environment:
-      # Host corregido a 'db' (el nombre del servicio)
+      # Database configuration
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/spring_batch_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: Evertec.2025
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_BATCH_JOB_ENABLED: "false"
+      SPRING_BATCH_JDBC_INITIALIZE_SCHEMA: always
+      
+      # (CRÍTICO) Inyección del Java Agent a la JVM
+      JAVA_TOOL_OPTIONS: -javaagent:/app/dd-java-agent.jar
+      
+      # (CORREGIDO) Apunta al nombre del servicio datadog-agent (puerto 8126 es predeterminado)
+      DD_AGENT_HOST: datadog-agent 
+      # (CORREGIDO) Nombre de servicio válido
+      DD_SERVICE: mi-servicio-spring-batch 
+      DD_ENV: prod
+      DD_VERSION: 1.0
+      DD_LOGS_INJECTION: true 
     ports:
       - "8080:8080"
     volumes:
-      # AÑADIR ESTA LÍNEA para mapear la carpeta local ./data a /app/data en el contenedor
       - ./data:/app/data
     depends_on:
-      # Esperar a que el servicio 'db' esté completamente saludable
       db:
         condition: service_healthy
+      datadog-agent:
+        condition: service_started
     networks:
       - spring-batch-network
 
+
 # ============================================
-# NETWORKS (Asegúrate que esta línea esté al mismo nivel que 'services:')
+# Docker Networks & Volumes
 # ============================================
 networks:
   spring-batch-network:
     driver: bridge
 
-# ============================================
-# VOLUMES (Asegúrate que esta línea esté al mismo nivel que 'services:')
-# ============================================
 volumes:
   mysql_data:
+    driver: local
