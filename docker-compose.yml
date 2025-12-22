@@ -44,7 +44,7 @@ services:
       # Script de inicialización
       - ./scripts/init-postgres.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
-      - "5432:5432"
+      - "5433:5432"
     networks:
       - spring-batch-network
     healthcheck:
@@ -81,7 +81,7 @@ services:
       SPRING_BATCH_JOB_ENABLED: "false"
       SPRING_BATCH_JDBC_INITIALIZE_SCHEMA: always
     ports:
-      - "8080:8080"
+      - "9090:8080"
     volumes:
       # Map local data folder for CSV file processing
       - ./data:/app/data

@@ -17,6 +17,13 @@ public class RegistroProcessor implements ItemProcessor<RegistroCSV, RegistroCSV
         registroTransformado.setEmail(item.getEmail());
         registroTransformado.setFechaProceso(LocalDateTime.now()); 
         
+        // CRÍTICO: Logging para verificar qué registros se están procesando
+        System.out.println("🔄 Procesando registro:");
+        System.out.println("   📝 Nombre: " + registroTransformado.getNombre());
+        System.out.println("   📧 Email: " + registroTransformado.getEmail());
+        System.out.println("   🎂 Edad: " + registroTransformado.getEdad());
+        System.out.println("   ⏰ Fecha proceso: " + registroTransformado.getFechaProceso());
+        
         // Aquí podrías agregar una validación y devolver null para "filtrar" el registro
         // if (registroTransformado.getEdad() < 18) { return null; }
 

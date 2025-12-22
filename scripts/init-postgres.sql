@@ -3,21 +3,20 @@
 -- Base de datos: spring_batch_db
 -- ============================================
 
--- Crear tabla REGISTRO_CSV
-CREATE TABLE IF NOT EXISTS REGISTRO_CSV (
+-- Crear tabla registrocsv (nombre generado por Hibernate con CamelCaseToUnderscoresNamingStrategy)
+-- Clase RegistroCSV -> tabla registrocsv (las mayúsculas consecutivas CSV se mantienen juntas)
+-- Campo fechaProceso -> columna fecha_proceso
+CREATE TABLE IF NOT EXISTS registrocsv (
     id BIGSERIAL PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
+    nombre VARCHAR(255),
     edad INTEGER,
-    email VARCHAR(100),
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    email VARCHAR(255),
+    fecha_proceso TIMESTAMP
 );
 
--- Crear índice para optimizar búsquedas por email
-CREATE INDEX IF NOT EXISTS idx_email ON REGISTRO_CSV(email);
-
--- Crear índice para optimizar búsquedas por nombre
-CREATE INDEX IF NOT EXISTS idx_nombre ON REGISTRO_CSV(nombre);
+-- Crear índices para optimizar búsquedas
+CREATE INDEX IF NOT EXISTS idx_registrocsv_email ON registrocsv(email);
+CREATE INDEX IF NOT EXISTS idx_registrocsv_nombre ON registrocsv(nombre);
 
 -- Tabla para metadatos de Spring Batch (requerida)
 CREATE TABLE IF NOT EXISTS BATCH_JOB_INSTANCE (
@@ -78,6 +77,22 @@ CREATE TABLE IF NOT EXISTS BATCH_JOB_EXECUTION_CONTEXT (
     SERIALIZED_CONTEXT TEXT,
     CONSTRAINT JOB_EXEC_CTX_FK FOREIGN KEY (JOB_EXECUTION_ID) REFERENCES BATCH_JOB_EXECUTION(JOB_EXECUTION_ID)
 );
+
+CREATE TABLE IF NOT EXISTS BATCH_JOB_EXECUTION_PARAMS (
+    JOB_EXECUTION_ID BIGINT NOT NULL,
+    PARAMETER_NAME VARCHAR(100) NOT NULL,
+    PARAMETER_TYPE VARCHAR(100) NOT NULL,
+    PARAMETER_VALUE VARCHAR(2500),
+    IDENTIFYING CHAR(1) NOT NULL,
+    CONSTRAINT JOB_EXEC_PARAMS_FK FOREIGN KEY (JOB_EXECUTION_ID) REFERENCES BATCH_JOB_EXECUTION(JOB_EXECUTION_ID)
+);
+
+-- Secuencias nativas de PostgreSQL para Spring Batch
+-- PostgreSQL usa secuencias nativas en lugar de tablas de secuencia
+-- Spring Batch detectará automáticamente estas secuencias cuando databaseType="POSTGRESQL"
+CREATE SEQUENCE IF NOT EXISTS BATCH_JOB_INSTANCE_SEQ START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE IF NOT EXISTS BATCH_JOB_EXECUTION_SEQ START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE IF NOT EXISTS BATCH_STEP_EXECUTION_SEQ START WITH 1 INCREMENT BY 1;
 
 -- Crear índices para mejorar rendimiento
 CREATE INDEX IF NOT EXISTS JOB_NAME_IDX ON BATCH_JOB_INSTANCE(JOB_NAME);
