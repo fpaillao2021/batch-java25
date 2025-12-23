@@ -1,0 +1,3 @@
+# Este directorio contiene JARs de dependencias para Docker build
+# Coloca batch-entity-dto-1.0.1.jar aquí antes de ejecutar docker-compose build
+

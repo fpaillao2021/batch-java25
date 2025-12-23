@@ -1,6 +1,6 @@
 package com.ejemplo.batch.controller;
 
-import com.ejemplo.batch.model.RegistroCSV;
+import com.evertecinc.entitydto.app.batch.model.entity.RegistroCSV;
 import com.ejemplo.batch.services.IJobRegistry;
 
 import org.springframework.beans.factory.annotation.Autowired;

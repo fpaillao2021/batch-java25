@@ -1,8 +1,7 @@
 package com.ejemplo.batch.processor;
 
-import com.ejemplo.batch.model.RegistroCSV;
-import com.ejemplo.batch.utils.MessagesLocales;
-import jakarta.persistence.EntityManagerFactory;
+import com.evertecinc.entitydto.app.batch.model.entity.RegistroCSV;
+import com.evertecinc.entitydto.app.utils.MessagesLocales;
 
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.step.*;
@@ -11,7 +10,8 @@ import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.parameters.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.infrastructure.item.database.JpaItemWriter;
+import org.springframework.batch.infrastructure.item.ItemReader;
+import org.springframework.batch.infrastructure.item.ItemWriter;
 import org.springframework.batch.infrastructure.item.file.FlatFileItemReader;
 import org.springframework.batch.infrastructure.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.infrastructure.item.file.mapping.BeanWrapperFieldSetMapper;
@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.web.client.RestTemplate;
 import java.io.File;
 
 @Configuration
@@ -29,14 +29,12 @@ import java.io.File;
 public class BatchConfig {
 
     private final JobRepository jobRepository;
-    private final PlatformTransactionManager transactionManager;
-    private final EntityManagerFactory entityManagerFactory;
+    private final RestTemplate restTemplate;
 
-    // Inyecta el JobRepository, TransactionManager y EntityManagerFactory de Spring Boot 4
-    public BatchConfig(JobRepository jobRepository, PlatformTransactionManager transactionManager, EntityManagerFactory entityManagerFactory) {
+    // Inyecta el JobRepository y RestTemplate de Spring Boot 4
+    public BatchConfig(JobRepository jobRepository, RestTemplate restTemplate) {
         this.jobRepository = jobRepository;
-        this.transactionManager = transactionManager;
-        this.entityManagerFactory = entityManagerFactory;
+        this.restTemplate = restTemplate;
     }
 
     // --- Reader (Lector de Archivo CSV) ---
@@ -81,19 +79,15 @@ public class BatchConfig {
         return new RegistroProcessor();
     }
 
-    // --- Writer (Escritor a Base de Datos) ---
+    // --- Writer (Escritor vía API REST de batch-dl-data-mysql) ---
     @Bean
-    public JpaItemWriter<RegistroCSV> writer() {
-        JpaItemWriter<RegistroCSV> writer = new JpaItemWriter<>(entityManagerFactory);
-        writer.setEntityManagerFactory(entityManagerFactory);
-        return writer;
+    public ItemWriter<RegistroCSV> writer(@Value("${batch.dl.data.mysql.api.url:http://batch-dl-data-mysql:8585/api/mysql/dl}") String apiBaseUrl) {
+        return new RestItemWriter(restTemplate, apiBaseUrl);
     }
-
-
 
     // --- Step (Unidad de Proceso) ---
     @Bean
-    public Step importStep(FlatFileItemReader<RegistroCSV> reader, RegistroProcessor processor, JpaItemWriter<RegistroCSV> writer) {
+    public Step importStep(ItemReader<RegistroCSV> reader, RegistroProcessor processor, ItemWriter<RegistroCSV> writer) {
         return new StepBuilder(MessagesLocales.MensajeLocal.CSV_IMPORT_STEP, jobRepository)
             .<RegistroCSV, RegistroCSV>chunk(10) // Procesa en bloques de 10
             .reader(reader)

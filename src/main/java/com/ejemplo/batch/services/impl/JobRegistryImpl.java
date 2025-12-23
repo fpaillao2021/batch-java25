@@ -1,9 +1,10 @@
 package com.ejemplo.batch.services.impl;
 
-import com.ejemplo.batch.model.RegistroCSV;
-import com.ejemplo.batch.repository.RegistroRepository;
+import com.evertecinc.entitydto.app.batch.model.dto.RegistroCSVDTO;
+import com.evertecinc.entitydto.app.batch.model.entity.RegistroCSV;
+import com.evertecinc.entitydto.app.utils.EntityDTOMapper;
+import com.evertecinc.entitydto.app.utils.MessagesLocales;
 import com.ejemplo.batch.services.IJobRegistry;
-import com.ejemplo.batch.utils.MessagesLocales;
 
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.parameters.JobParameters;
@@ -11,11 +12,16 @@ import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class JobRegistryImpl implements IJobRegistry {
@@ -27,10 +33,13 @@ public class JobRegistryImpl implements IJobRegistry {
     private Job importUserJob;
 
     @Autowired
-    private RegistroRepository registroRepository;
+    private RestTemplate restTemplate;
 
     @Value("${file.data.path}")
     private String dataPath;
+
+    @Value("${batch.dl.data.mysql.api.url:http://localhost:8585/api/mysql/dl}")
+    private String apiBaseUrl;
 
     /**
      * Ejecuta el proceso batch con el archivo especificado
@@ -72,19 +81,53 @@ public class JobRegistryImpl implements IJobRegistry {
     }
 
     /**
-     * Obtiene todos los registros procesados
+     * Obtiene todos los registros procesados desde la API de batch-dl-data-mysql
      */
     @Override
     public List<RegistroCSV> getAllRegistros() {
-        return registroRepository.findAll();
+        try {
+            String url = apiBaseUrl + "/mandato/registros";
+            ResponseEntity<List<RegistroCSVDTO>> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<RegistroCSVDTO>>() {}
+            );
+
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                // Convertir DTOs a entidades
+                return response.getBody().stream()
+                    .map(EntityDTOMapper::toNewEntity)
+                    .collect(Collectors.toList());
+            }
+            return List.of();
+        } catch (Exception e) {
+            System.err.println("❌ Error al obtener registros desde API: " + e.getMessage());
+            e.printStackTrace();
+            return List.of();
+        }
     }
 
     /**
-     * Obtiene un registro por su ID
+     * Obtiene un registro por su ID desde la API de batch-dl-data-mysql
      */
     @Override
     public Optional<RegistroCSV> getRegistroById(Long id) {
-        return registroRepository.findById(id);
+        try {
+            String url = apiBaseUrl + "/mandato/registro/" + id;
+            ResponseEntity<RegistroCSVDTO> response = restTemplate.getForEntity(url, RegistroCSVDTO.class);
+
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                // Convertir DTO a entidad
+                RegistroCSV registro = EntityDTOMapper.toNewEntity(response.getBody());
+                return Optional.of(registro);
+            }
+            return Optional.empty();
+        } catch (Exception e) {
+            System.err.println("❌ Error al obtener registro por ID desde API: " + e.getMessage());
+            e.printStackTrace();
+            return Optional.empty();
+        }
     }
 
     /**

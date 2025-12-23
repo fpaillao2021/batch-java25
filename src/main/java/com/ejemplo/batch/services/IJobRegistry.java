@@ -1,6 +1,6 @@
 package com.ejemplo.batch.services;
 
-import com.ejemplo.batch.model.RegistroCSV;
+import com.evertecinc.entitydto.app.batch.model.entity.RegistroCSV;
 import java.util.List;
 import java.util.Optional;
 

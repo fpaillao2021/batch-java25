@@ -1,6 +1,6 @@
 package com.ejemplo.batch.processor;
 
-import com.ejemplo.batch.model.RegistroCSV;
+import com.evertecinc.entitydto.app.batch.model.entity.RegistroCSV;
 import java.time.LocalDateTime;
 import org.springframework.batch.infrastructure.item.ItemProcessor;
 

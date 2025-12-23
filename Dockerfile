@@ -12,10 +12,34 @@ RUN set -eux \
 	&& apt-get install -y maven \
 	&& rm -rf /var/lib/apt/lists/*
 
-# Copy pom and source, then build the fat jar
+# Copy pom.xml first to leverage Docker cache
 COPY pom.xml ./
+
+# Copy libs directory if exists (contains batch-entity-dto JAR)
+# Create empty libs dir to avoid COPY failure
+COPY libs* /tmp/libs/
+
+# Install batch-entity-dto JAR if available in libs/
+RUN if ls /tmp/libs/batch-entity-dto-*.jar 1> /dev/null 2>&1; then \
+        for JAR_FILE in /tmp/libs/batch-entity-dto-*.jar; do \
+            mvn install:install-file \
+                -Dfile="$JAR_FILE" \
+                -DgroupId=com.evertecinc.entitydto \
+                -DartifactId=batch-entity-dto \
+                -Dversion=1.0.1 \
+                -Dpackaging=jar; \
+        done; \
+    else \
+        echo "No batch-entity-dto JAR found in libs/, assuming it's in Maven repo"; \
+    fi
+
+# Download dependencies
+RUN mvn dependency:resolve -B || true
+
+# Copy source code
 COPY src ./src
 
+# Build the application
 RUN mvn -B -DskipTests clean package
 
 # ============================================
@@ -32,10 +56,5 @@ COPY data/ /app/data/
 
 # Expose port
 EXPOSE 8080
-
-# Note: Database credentials are passed via environment variables from docker-compose.yml or .env file
-# Do NOT hardcode sensitive credentials in this Dockerfile
-# Spring will read: SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD
-# from the environment variables set by docker-compose or docker run --env-file
 
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]

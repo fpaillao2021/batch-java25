@@ -1,0 +1,139 @@
+<mxfile host="app.diagrams.net" modified="2025-12-22T00:00:00.000Z" agent="Mozilla/5.0" version="22.1.0" type="device">
+  <diagram name="Arquitectura Batch System" id="batch-architecture">
+    <mxGraphModel dx="1434" dy="780" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Docker Compose Container -->
+        <mxCell id="docker-container" value="Docker Compose" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#000000;verticalAlign=top;fontSize=16;fontStyle=1;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="1080" height="520" as="geometry" />
+        </mxCell>
+        
+        <!-- batch-java25 -->
+        <mxCell id="batch-java25" value="&lt;b&gt;batch-java25&lt;/b&gt;&lt;br&gt;Spring Batch Processor&lt;br&gt;&lt;br&gt;Port: 8080" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontColor=#000000;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="80" y="100" width="280" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- batch-java25 components -->
+        <mxCell id="csv-reader" value="FlatFileItemReader&lt;br&gt;(CSV)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="100" y="160" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="processor" value="RegistroProcessor&lt;br&gt;(Transform)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="100" y="210" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="rest-writer" value="RestItemWriter&lt;br&gt;(HTTP POST)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="100" y="260" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="batch-controller" value="BatchController&lt;br&gt;(REST API)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="220" y="180" width="120" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows inside batch-java25 -->
+        <mxCell id="arrow1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;" edge="1" parent="1" source="csv-reader" target="processor">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;" edge="1" parent="1" source="processor" target="rest-writer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- batch-dl-data-mysql -->
+        <mxCell id="batch-dl-data" value="&lt;b&gt;batch-dl-data-mysql&lt;/b&gt;&lt;br&gt;REST API + JPA&lt;br&gt;&lt;br&gt;Port: 8585" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontColor=#000000;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="440" y="100" width="280" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- batch-dl-data components -->
+        <mxCell id="dl-controller" value="BatchController&lt;br&gt;(REST Endpoints)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="460" y="160" width="120" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dl-service" value="BatchImp&lt;br&gt;(Service)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="460" y="220" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dl-repository" value="RegistroRepository&lt;br&gt;(JPA)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="460" y="270" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows inside batch-dl-data -->
+        <mxCell id="arrow3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;" edge="1" parent="1" source="dl-controller" target="dl-service">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;" edge="1" parent="1" source="dl-service" target="dl-repository">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- MySQL -->
+        <mxCell id="mysql" value="&lt;b&gt;MySQL 8.0&lt;/b&gt;&lt;br&gt;&lt;br&gt;Port: 3308&lt;br&gt;DB: spring_batch_db" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="800" y="120" width="150" height="160" as="geometry" />
+        </mxCell>
+        
+        <!-- Tables inside MySQL -->
+        <mxCell id="tables" value="registrocsv&lt;br&gt;BATCH_JOB_*" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;fontSize=10;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="820" y="200" width="110" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- batch-entity-dto -->
+        <mxCell id="entity-dto" value="&lt;b&gt;batch-entity-dto&lt;/b&gt;&lt;br&gt;(JAR Library 1.0.1)&lt;br&gt;&lt;br&gt;• RegistroCSV (Entity)&lt;br&gt;• RegistroCSVDTO&lt;br&gt;• EntityDTOMapper&lt;br&gt;• MessagesLocales" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;fontColor=#000000;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="80" y="380" width="640" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows between services -->
+        <mxCell id="http-arrow" value="HTTP POST&lt;br&gt;/api/mysql/dl/save/mandato" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0066CC;strokeWidth=2;fontColor=#000000;fontSize=10;" edge="1" parent="1" source="rest-writer" target="dl-controller">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="400" y="280" />
+              <mxPoint x="400" y="185" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="jdbc-arrow" value="JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#CC0000;strokeWidth=2;fontColor=#000000;fontSize=10;" edge="1" parent="1" source="dl-repository" target="mysql">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Dependency arrows to batch-entity-dto -->
+        <mxCell id="dep1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d79b00;strokeWidth=1;dashed=1;" edge="1" parent="1" source="batch-java25" target="entity-dto">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dep2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d79b00;strokeWidth=1;dashed=1;" edge="1" parent="1" source="batch-dl-data" target="entity-dto">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- CSV File -->
+        <mxCell id="csv-file" value="CSV File&lt;br&gt;registros.csv" style="shape=document;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="100" y="320" width="80" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="csv-arrow" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;entryX=0.5;entryY=1;" edge="1" parent="1" source="csv-file" target="csv-reader">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="140" y="310" />
+              <mxPoint x="150" y="310" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Network Label -->
+        <mxCell id="network-label" value="spring-batch-network (Docker Bridge)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="400" y="510" width="280" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Legend -->
+        <mxCell id="legend" value="&lt;b&gt;Leyenda:&lt;/b&gt;&lt;br&gt;─── HTTP Request&lt;br&gt;─── JDBC Connection&lt;br&gt;- - - Dependency" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontColor=#000000;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="960" y="380" width="140" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Title -->
+        <mxCell id="title" value="Arquitectura Sistema Batch - Evertec" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="400" y="10" width="320" height="30" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
